@@ -48,6 +48,7 @@ public final class IndexerDaoFactory {
   static {
     Map<IndexerType, Class<?>> indexerMap = new HashMap<IndexerType, Class<?>>();
 
+    indexerMap.put(IndexerType.KAFKA, KafkaDao.class);
     indexerMap.put(IndexerType.REDIS, RedisDao.class);
     indexerMap.put(IndexerType.RABBIT_MQ, RabbitMqDao.class);
     indexerMap.put(IndexerType.ELASTICSEARCH, ElasticSearchDao.class);
@@ -80,7 +81,7 @@ public final class IndexerDaoFactory {
     }
 
     // Prevent NPE
-    port = (port == null ? -1 : port.intValue());
+    port = (port == null ? type == IndexerType.KAFKA ? 9092 : -1 : port.intValue());
 
     if (shouldRefreshInstance(type, host, port, key, username, password)) {
       try {

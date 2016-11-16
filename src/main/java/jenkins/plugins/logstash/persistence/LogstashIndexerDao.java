@@ -37,6 +37,7 @@ import net.sf.json.JSONObject;
  */
 public interface LogstashIndexerDao {
   static enum IndexerType {
+    KAFKA,
     REDIS,
     RABBIT_MQ,
     ELASTICSEARCH,
