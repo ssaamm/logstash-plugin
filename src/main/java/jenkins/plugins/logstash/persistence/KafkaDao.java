@@ -1,6 +1,7 @@
 package jenkins.plugins.logstash.persistence;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -9,7 +10,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+import net.sf.json.JSONObject;
+
 public class KafkaDao extends AbstractLogstashIndexerDao {
+	private String eventKey = "";
 
 	public KafkaDao(String host, int port, String key, String username, String password) {
 		super(host, port, key, username, password);
@@ -22,6 +26,7 @@ public class KafkaDao extends AbstractLogstashIndexerDao {
 
 	@Override
 	public void push(String data) throws IOException {
+		Thread.currentThread().setContextClassLoader(null);
 		Properties props = new Properties();
 		props.put("bootstrap.servers", String.format("%s:%d", host, port));
 		props.put("acks", "1");
@@ -33,7 +38,7 @@ public class KafkaDao extends AbstractLogstashIndexerDao {
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
 		KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-		ProducerRecord<String, String> record = new ProducerRecord<>(this.key, data);
+		ProducerRecord<String, String> record = new ProducerRecord<>(this.key, this.getEventKey(), data);
 		Future<RecordMetadata> send_future = producer.send(record);
 		try {
 			send_future.get();
@@ -44,6 +49,20 @@ public class KafkaDao extends AbstractLogstashIndexerDao {
 		} finally {
 			producer.close();
 		}
+	}
+
+	@Override
+	public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines) {
+		this.setEventKey(jenkinsUrl + buildData.getProjectName() + buildData.getBuildNum());
+		return super.buildPayload(buildData, jenkinsUrl, logLines);
+	}
+
+	private String getEventKey() {
+		return this.eventKey;
+	}
+
+	private void setEventKey(String key) {
+		this.eventKey = key;
 	}
 
 }
