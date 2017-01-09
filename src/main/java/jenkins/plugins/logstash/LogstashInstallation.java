@@ -109,6 +109,15 @@ public class LogstashInstallation extends ToolInstallation {
       if (StringUtils.isBlank(value)) {
         return FormValidation.warning(Messages.PleaseProvideHost());
       }
+      
+      if (value.contains(",")) {
+    	String[] hosts = value.split(",");
+    	for (String host : hosts) {
+    	  if (host.length() <= 0) {
+			return FormValidation.warning(Messages.PleaseProvideHost());
+    	  }
+    	}
+      }
 
       return FormValidation.ok();
     }

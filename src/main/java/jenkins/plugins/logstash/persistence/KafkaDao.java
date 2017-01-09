@@ -14,9 +14,20 @@ import net.sf.json.JSONObject;
 
 public class KafkaDao extends AbstractLogstashIndexerDao {
 	private String eventKey = "";
+	private String brokers = null;
 
 	public KafkaDao(String host, int port, String key, String username, String password) {
 		super(host, port, key, username, password);
+
+		StringBuilder brokersBuilder = new StringBuilder();
+		String[] hosts = host.split(",");
+		for (String aHost : hosts) {
+			if (brokersBuilder.length() > 0) {
+				brokersBuilder.append(',');
+			}
+			brokersBuilder.append(String.format("%s:%d", aHost, this.port));
+		}
+		brokers = brokersBuilder.toString();
 	}
 
 	@Override
@@ -28,7 +39,7 @@ public class KafkaDao extends AbstractLogstashIndexerDao {
 	public void push(String data) throws IOException {
 		Thread.currentThread().setContextClassLoader(null);
 		Properties props = new Properties();
-		props.put("bootstrap.servers", String.format("%s:%d", host, port));
+		props.put("bootstrap.servers", brokers);
 		props.put("acks", "1");
 		props.put("retries", 0);
 		props.put("batch.size", 16384);
