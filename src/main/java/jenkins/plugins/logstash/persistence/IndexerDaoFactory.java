@@ -57,6 +57,10 @@ public final class IndexerDaoFactory {
     INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
   }
 
+  public static synchronized LogstashIndexerDao getInstance(IndexerType type, String host, Integer port, String key, String username, String password) throws InstantiationException {
+	  return getInstance(type, host, port, key, username, password, null, null, null, null, null);
+  }
+
   /**
    * Singleton instance accessor.
    *
@@ -75,7 +79,7 @@ public final class IndexerDaoFactory {
    * @return The instance of the appropriate indexer DAO, never null
    * @throws InstantiationException
    */
-  public static synchronized LogstashIndexerDao getInstance(IndexerType type, String host, Integer port, String key, String username, String password) throws InstantiationException {
+  public static synchronized LogstashIndexerDao getInstance(IndexerType type, String host, Integer port, String key, String username, String password, String truststore_location, String truststore_password, String keystore_location, String keystore_password, String key_password) throws InstantiationException {
     if (!INDEXER_MAP.containsKey(type)) {
       throw new InstantiationException("[logstash-plugin]: Unknown IndexerType '" + type + "'. Did you forget to configure the plugin?");
     }
@@ -86,8 +90,13 @@ public final class IndexerDaoFactory {
     if (shouldRefreshInstance(type, host, port, key, username, password)) {
       try {
         Class<?> indexerClass = INDEXER_MAP.get(type);
-        Constructor<?> constructor = indexerClass.getConstructor(String.class, int.class, String.class, String.class, String.class);
-        instance = (AbstractLogstashIndexerDao) constructor.newInstance(host, port, key, username, password);
+        if (type == IndexerType.KAFKA) {
+			Constructor<?> constructor = indexerClass.getConstructor(String.class, int.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class);
+			instance = (AbstractLogstashIndexerDao) constructor.newInstance(host, port, key, username, password, truststore_location, truststore_password, keystore_location, keystore_password, key_password);
+        } else {
+			Constructor<?> constructor = indexerClass.getConstructor(String.class, int.class, String.class, String.class, String.class);
+			instance = (AbstractLogstashIndexerDao) constructor.newInstance(host, port, key, username, password);
+        }
       } catch (NoSuchMethodException e) {
         throw new InstantiationException(ExceptionUtils.getRootCauseMessage(e));
       } catch (InvocationTargetException e) {

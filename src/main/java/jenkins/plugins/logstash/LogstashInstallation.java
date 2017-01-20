@@ -67,6 +67,11 @@ public class LogstashInstallation extends ToolInstallation {
     public String username;
     public String password;
     public String key;
+    public String truststore_location;
+    public String truststore_password;
+    public String keystore_location;
+    public String keystore_password;
+    public String key_password;
 
     public Descriptor() {
       super();
