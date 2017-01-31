@@ -16,6 +16,7 @@ import org.apache.kafka.common.KafkaException;
 import net.sf.json.JSONObject;
 
 public class KafkaDao extends AbstractLogstashIndexerDao {
+	private KafkaProducer<String, String> producer;
 	private String eventKey = "";
 	private final Properties kafka_config;
 	private final String truststore_location;
@@ -78,26 +79,11 @@ public class KafkaDao extends AbstractLogstashIndexerDao {
 	public void push(String data) throws IOException {
 		Thread.currentThread().setContextClassLoader(null);
 
-		KafkaProducer<String, String> producer;
-		try {
+		if (null == producer) {
 			producer = new KafkaProducer<>(kafka_config);
-		} catch(KafkaException e) {
-			Logger logger = Logger.getLogger("KafkaDao");
-			logger.warning(e.getCause().getMessage() + "\n=====================\n" + e.getCause().getStackTrace());
-
-			throw new IOException(e);
 		}
 		ProducerRecord<String, String> record = new ProducerRecord<>(this.key, this.getEventKey(), data);
-		Future<RecordMetadata> send_future = producer.send(record);
-		try {
-			send_future.get();
-		} catch (InterruptedException e) {
-			throw new IOException(e);
-		} catch (ExecutionException e) {
-			throw new IOException(e);
-		} finally {
-			producer.close();
-		}
+		producer.send(record);
 	}
 
 	@Override
