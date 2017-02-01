@@ -19,11 +19,11 @@ public class KafkaDao extends AbstractLogstashIndexerDao {
 	private KafkaProducer<String, String> producer;
 	private String eventKey = "";
 	private final Properties kafka_config;
-	private final String truststore_location;
-	private final String truststore_password;
-	private final String keystore_location;
-	private final String keystore_password;
-	private final String key_password;
+	protected final String truststore_location;
+	protected final String truststore_password;
+	protected final String keystore_location;
+	protected final String keystore_password;
+	protected final String key_password;
 
 	public KafkaDao(String host, int port, String key, String username, String password, String truststore_location, String truststore_password, String keystore_location, String keystore_password, String key_password) {
 		super(host, port, key, username, password);

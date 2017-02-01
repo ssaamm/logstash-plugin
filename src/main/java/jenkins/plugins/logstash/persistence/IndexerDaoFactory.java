@@ -87,7 +87,7 @@ public final class IndexerDaoFactory {
     // Prevent NPE
     port = (port == null ? type == IndexerType.KAFKA ? 9092 : -1 : port.intValue());
 
-    if (shouldRefreshInstance(type, host, port, key, username, password)) {
+    if (shouldRefreshInstance(type, host, port, key, username, password, truststore_location, truststore_password, keystore_location, keystore_password, key_password)) {
       try {
         Class<?> indexerClass = INDEXER_MAP.get(type);
         if (type == IndexerType.KAFKA) {
@@ -109,7 +109,7 @@ public final class IndexerDaoFactory {
     return instance;
   }
 
-  private static boolean shouldRefreshInstance(IndexerType type, String host, int port, String key, String username, String password) {
+  private static boolean shouldRefreshInstance(IndexerType type, String host, int port, String key, String username, String password, String truststore_location, String truststore_password, String keystore_location, String keystore_password, String key_password) {
     if (instance == null) {
       return true;
     }
@@ -120,6 +120,17 @@ public final class IndexerDaoFactory {
       StringUtils.equals(instance.key, key) &&
       StringUtils.equals(instance.username, username) &&
       StringUtils.equals(instance.password, password);
+
+    if (instance.getIndexerType() == IndexerType.KAFKA) {
+    	KafkaDao kafkaDao = (KafkaDao) instance;
+    	boolean ssl_matches = StringUtils.equals(kafkaDao.truststore_location, truststore_location) &&
+    			StringUtils.equals(kafkaDao.truststore_password, truststore_password) &&
+    			StringUtils.equals(kafkaDao.keystore_location, keystore_location) &&
+    			StringUtils.equals(kafkaDao.keystore_password, keystore_password) &&
+    			StringUtils.equals(kafkaDao.key_password, key_password);
+    	matches &= ssl_matches;
+    }
+
     return !matches;
   }
 }
