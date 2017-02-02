@@ -21,5 +21,20 @@
       <f:textbox value="${descriptor.key}" default="logstash"
         checkUrl="'descriptorByName/LogstashInstallation/checkString?value='+escape(this.value)" />
     </f:entry>
+    <f:entry title="${%Truststore location}" field="truststore_location">
+      <f:textbox value="${descriptor.truststore_location}" />
+    </f:entry>
+    <f:entry title="${%Truststore password}" field="truststore_password">
+      <f:password value="${descriptor.truststore_password}" />
+    </f:entry>
+    <f:entry title="${%Keystore location}" field="keystore_location">
+      <f:textbox value="${descriptor.keystore_location}" />
+    </f:entry>
+    <f:entry title="${%Keystore password}" field="keystore_password">
+      <f:password value="${descriptor.keystore_password}" />
+    </f:entry>
+    <f:entry title="${%Key password}" field="key_password">
+      <f:password value="${descriptor.key_password}" />
+    </f:entry>
   </f:section>
 </j:jelly>

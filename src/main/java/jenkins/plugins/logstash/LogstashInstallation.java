@@ -67,6 +67,11 @@ public class LogstashInstallation extends ToolInstallation {
     public String username;
     public String password;
     public String key;
+    public String truststore_location;
+    public String truststore_password;
+    public String keystore_location;
+    public String keystore_password;
+    public String key_password;
 
     public Descriptor() {
       super();
@@ -108,6 +113,15 @@ public class LogstashInstallation extends ToolInstallation {
     public FormValidation doCheckHost(@QueryParameter("value") String value) {
       if (StringUtils.isBlank(value)) {
         return FormValidation.warning(Messages.PleaseProvideHost());
+      }
+      
+      if (value.contains(",")) {
+    	String[] hosts = value.split(",");
+    	for (String host : hosts) {
+    	  if (host.length() <= 0) {
+			return FormValidation.warning(Messages.PleaseProvideHost());
+    	  }
+    	}
       }
 
       return FormValidation.ok();
